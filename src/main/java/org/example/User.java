@@ -1,6 +1,9 @@
+import java.io.Serializable;
 import java.util.UUID;
 
-public class User {
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L; // Уникальный идентификатор версии
+
     private UUID userId;
     private String name;
 

@@ -1,15 +1,23 @@
+import java.io.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+    private static final String USERS_FILE = "users.dat"; // Файл для хранения пользователей
+
     public static void main(String[] args) throws Exception {
         LinkShortener linkShortener = new LinkShortener();
         NotificationService notificationService = new NotificationService();
         Scanner scanner = new Scanner(System.in);
-        List<User> users = new ArrayList<>();
+        List<User> users = loadUsers(); // Загружаем пользователей из файла
         User currentUser = null;
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            saveUsers(users); // Сохраняем пользователей при завершении программы
+            linkShortener.shutdown();
+        }));
 
         while (true) {
             if (currentUser == null) {
@@ -43,9 +51,10 @@ public class Main {
                         }
                     }
                 } else if (choice.equals("3")) {
-                    linkShortener.shutdown(); // Завершаем работу планировщика
+                    saveUsers(users); // Сохраняем пользователей перед выходом
+                    linkShortener.shutdown();
                     System.out.println("Exiting the program...");
-                    System.exit(0); // Завершаем программу
+                    System.exit(0);
                 }
             } else {
                 System.out.println("Current user: " + currentUser);
@@ -71,13 +80,35 @@ public class Main {
                 } else if (command.equalsIgnoreCase("switch")) {
                     currentUser = null;
                 } else if (command.equalsIgnoreCase("exit")) {
-                    linkShortener.shutdown(); // Завершаем работу планировщика
+                    saveUsers(users); // Сохраняем пользователей перед выходом
+                    linkShortener.shutdown();
                     System.out.println("Exiting the program...");
-                    System.exit(0); // Завершаем программу
+                    System.exit(0);
                 }
 
                 linkShortener.cleanUpExpiredLinks();
             }
+        }
+    }
+
+    // Загрузка пользователей из файла
+    private static List<User> loadUsers() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(USERS_FILE))) {
+            return (List<User>) ois.readObject();
+        } catch (FileNotFoundException e) {
+            System.out.println("No users file found. Starting with an empty list.");
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Error loading users: " + e.getMessage());
+        }
+        return new ArrayList<>();
+    }
+
+    // Сохранение пользователей в файл
+    private static void saveUsers(List<User> users) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(USERS_FILE))) {
+            oos.writeObject(users);
+        } catch (IOException e) {
+            System.out.println("Error saving users: " + e.getMessage());
         }
     }
 }
