@@ -43,7 +43,9 @@ public class Main {
                         }
                     }
                 } else if (choice.equals("3")) {
-                    break;
+                    linkShortener.shutdown(); // Завершаем работу планировщика
+                    System.out.println("Exiting the program...");
+                    System.exit(0); // Завершаем программу
                 }
             } else {
                 System.out.println("Current user: " + currentUser);
@@ -69,7 +71,9 @@ public class Main {
                 } else if (command.equalsIgnoreCase("switch")) {
                     currentUser = null;
                 } else if (command.equalsIgnoreCase("exit")) {
-                    break;
+                    linkShortener.shutdown(); // Завершаем работу планировщика
+                    System.out.println("Exiting the program...");
+                    System.exit(0); // Завершаем программу
                 }
 
                 linkShortener.cleanUpExpiredLinks();

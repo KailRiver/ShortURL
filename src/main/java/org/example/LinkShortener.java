@@ -1,14 +1,25 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class LinkShortener {
     private Map<String, ShortLink> shortLinks;
     private Map<UUID, Map<String, ShortLink>> userLinks;
+    private ScheduledExecutorService scheduler;
 
     public LinkShortener() {
         this.shortLinks = new HashMap<>();
         this.userLinks = new HashMap<>();
+        this.scheduler = Executors.newScheduledThreadPool(1);
+        // Запускаем задачу каждые 5 минут
+        this.scheduler.scheduleAtFixedRate(this::cleanUpExpiredLinks, 0, 5, TimeUnit.MINUTES);
+    }
+
+    public void shutdown() {
+        scheduler.shutdown();
     }
 
     public String shortenLink(String originalUrl, User user, int clickLimit) {

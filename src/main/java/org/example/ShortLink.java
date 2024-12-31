@@ -43,10 +43,14 @@ public class ShortLink {
     }
 
     public boolean isExpired() {
-        return LocalDateTime.now().isAfter(creationTime.plusDays(1));
+        return LocalDateTime.now().isAfter(creationTime.plusDays(1));// Срок действи ссылки
     }
 
     public boolean isClickLimitReached() {
         return clicks >= clickLimit;
+    }
+
+    public void setCreationTime(LocalDateTime creationTime) {
+        this.creationTime = creationTime;
     }
 }
